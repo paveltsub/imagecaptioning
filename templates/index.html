@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Нейронная сеть для описания изображений</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Нейронная сеть для описания изображений</h1>
+  <p>Загрузите изображение, и модель сгенерирует описание на русском.</p>
+  <div id="note">Примечание: нейросеть обучена на ограниченном наборе данных и может описывать не все детали изображения точно.</div>
+
+  <form id="upload-form">
+    <input type="file" name="image" id="image-input" accept="image/*" required>
+    <button type="submit" id="submit-btn">Загрузить</button>
+  </form>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <div id="result" style="display: none;">
+    <h2 id="caption"></h2>
+    <img id="uploaded-img" src="" alt="Uploaded image">
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const submitBtn = document.getElementById('submit-btn');
+    const captionEl = document.getElementById('caption');
+    const uploadedImg = document.getElementById('uploaded-img');
+    const resultContainer = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+      resultContainer.style.display = 'none';
+
+      const file = document.getElementById('image-input').files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (progress < 90) {
+          progress += 10;
+          progressBar.style.width = progress + '%';
+        } else {
+          clearInterval(interval);
+        }
+      }, 300);
+
+      const response = await fetch('/predict', { method: 'POST', body: formData });
+      const data = await response.json();
+
+      clearInterval(interval);
+      progressBar.style.width = '100%';
+
+      captionEl.textContent = data.caption;
+      uploadedImg.src = URL.createObjectURL(file);
+      resultContainer.style.display = 'block';
+      submitBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
