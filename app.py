@@ -8,6 +8,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.applications import DenseNet201
 from deep_translator import GoogleTranslator
 import os
+import sys
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -61,4 +62,8 @@ def predict():
     return jsonify({'caption': caption})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    # Получаем аргументы командной строки для хоста и порта
+    host = sys.argv[1] if len(sys.argv) > 1 else '0.0.0.0'
+    port = int(sys.argv[2]) if len(sys.argv) > 2 else 5000
+
+    app.run(debug=True, host=host, port=port)
