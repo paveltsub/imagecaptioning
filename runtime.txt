@@ -1,2 +1,1 @@
-git config --global user.email "paveltsub@yandex.ru"
-git config --global user.name "Your Name"
+python-3.12.0
